@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import "../../styles/global.css";
+
+// Permet de prérendre les pages statiques
+export const prerender = true;
+
+// Génération des chemins statiques
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+
+  return articles.map((article: CollectionEntry<'articles'>) => ({
+    params: { slug: article.slug },
+  }));
+}
+
+const formatDate = (date: string | Date) =>
+  new Intl.DateTimeFormat('fr-FR', {
+    weekday: undefined,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(date));
+
+// Récupération de l'article à partir du slug
+const { slug } = Astro.params;
+const articles = await getCollection('articles');
+const article = articles.find((a: CollectionEntry<'articles'>) => a.slug === slug);
+
+if (!article) {
+  throw new Error(`Article non trouvé: ${slug}`);
+}
+
+// On attend le rendu du contenu Markdown
+const { Content } = await article.render();
+---
+<meta charset="UTF-8">
+  <div class="max-w-[1200px] mx-auto p-8 bg-white shadow-md rounded-lg mt-32 mb-16"> 
+    
+    <!-- Titre et date -->
+    <h1 class="text-4xl font-bold text-[#00091a]">{article.data.title}</h1>
+    <p class="text-gray-500 text-sm mt-2">{formatDate(article.data.date)}</p>
+
+
+    <div class="mt-6 flex flex-col md:flex-row gap-8">
+      
+      <!-- Contenu principal -->
+      <div class="flex-1 text-gray-700 leading-relaxed">
+        <Content />
+      </div>
+
+      <!-- Image d'illustration (optionnelle) -->
+      {article.data.image && (
+        <div class="w-full md:w-1/3">
+          <img src={article.data.image} alt={article.data.title} class="rounded-lg shadow-lg object-cover w-full h-auto" />
+        </div>
+      )}
+
+    </div>
+  </div>

@@ -1,0 +1,29 @@
+kind: pipeline
+type: exec
+name: build-and-deploy-test
+
+steps:
+  - name: update-code
+    environment:
+      GITHUB_TOKEN:
+        from_secret: GITHUB_TOKEN
+    commands:
+      - cd /home/kodanim/test || exit 1
+      - git config --global --add safe.directory /home/kodanim/test
+      - git remote set-url origin https://CBO01818P:${GITHUB_TOKEN}@github.com/Kodanim/test.git
+      - git pull
+
+  - name: install-deps
+    commands:
+      - cd /home/kodanim/test || exit 1
+      - npm install
+
+  - name: build
+    commands:
+      - cd /home/kodanim/test || exit 1
+      - npm run build
+
+  - name: deploy
+    commands:
+      - rsync -av /home/kodanim/test/dist/ /srv/web/test
+

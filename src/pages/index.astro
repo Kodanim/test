@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import "@/styles/global.css";
+
+// Permet de prérendre les pages statiques
+export const prerender = true;
+
+// Récupération de tous les articles
+const articles = await getCollection('articles');
+
+const formatDate = (date: string | Date): string =>
+  new Intl.DateTimeFormat('fr-FR', {
+    weekday: undefined,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(date));
+
+// Trier par date décroissante
+articles.sort((a: CollectionEntry<'articles'>, b: CollectionEntry<'articles'>) => 
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+---
+<meta charset="UTF-8">
+<div class="max-w-[1200px] mx-auto p-8 bg-white shadow-md rounded-lg mt-32 mb-16">
+    
+    <!-- Titre principal -->
+    <h1 class="text-4xl font-bold text-[#00091a] text-center">Nos Articles</h1>
+    <p class="text-gray-500 text-center mt-2">Retrouvez nos dernières actualités et conseils</p>
+
+    <!-- Grille des articles -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-10">
+      {articles.map((article: CollectionEntry<'articles'>) => (
+        <a href={`/articles/${article.slug}/`} class="block bg-[#F1F4FB] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-transform transform hover:scale-105">
+          {article.data.image && (
+            <img src={article.data.image} alt={article.data.title} class="w-full h-48 object-cover" />
+          )}
+          <div class="p-6">
+            <h2 class="text-2xl font-bold text-[#00091a]">{article.data.title}</h2>
+            <p class="text-gray-500 text-sm">{formatDate(article.data.date)}</p>
+            <p class="text-gray-700 mt-3 line-clamp-3">{article.data.description}</p>
+            <p class="mt-4 text-blue-600 font-semibold">Lire la suite →</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
