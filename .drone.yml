@@ -5,15 +5,12 @@ name: build-and-deploy-test
 steps:
   - name: install-deps
     commands:
-      - cd /home/kodanim/test || exit 1
-      - npm install
+      - npm install  # inutile de faire 'cd', Drone commence déjà dans DRONE_WORKSPACE
 
   - name: build
     commands:
-      - cd /home/kodanim/test || exit 1
       - npm run build
 
   - name: deploy
     commands:
-      - rsync -av /home/kodanim/test/dist/ /srv/web/test
-
+      - rsync -av ${DRONE_WORKSPACE}/dist/ /srv/web/test
