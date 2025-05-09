@@ -7,10 +7,12 @@ steps:
     environment:
       GITHUB_TOKEN:
         from_secret: GITHUB_TOKEN
+      GITHUB_USERNAME:
+        from_secret: GITHUB_USERNAME
     commands:
       - cd /home/kodanim/test || exit 1
       - git config --global --add safe.directory /home/kodanim/test
-      - git remote set-url origin https://CBO01818P:${GITHUB_TOKEN}@github.com/Kodanim/test.git
+      - git remote set-url origin https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Kodanim/test.git
       - git pull
 
   - name: install-deps
